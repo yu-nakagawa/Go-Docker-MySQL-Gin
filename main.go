@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -9,8 +10,15 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type User struct {
+	gorm.Model
+	Name  string
+	Email string
+}
+
 func main() {
 	db := sqlConnect()
+	db.AutoMigrate(&User{})
 	defer db.Close()
 
 	router := gin.Default()
@@ -18,6 +26,39 @@ func main() {
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(200, "index.html", gin.H{})
+	})
+
+	router.GET("/users", func(ctx *gin.Context) {
+		db := sqlConnect()
+		var users []User
+		db.Order("created_at asc").Find(&users)
+		defer db.Close()
+		ctx.HTML(200, "users.html", gin.H{
+			"users": users,
+		})
+	})
+
+	router.POST("/users", func(ctx *gin.Context) {
+		db := sqlConnect()
+		name := ctx.PostForm("name")
+		email := ctx.PostForm("email")
+		db.Create(&User{Name: name, Email: email})
+		defer db.Close()
+		ctx.Redirect(302, "/users")
+	})
+
+	router.POST("/users/:id", func(ctx *gin.Context) {
+		db := sqlConnect()
+		n := ctx.Param("id")
+		id, err := strconv.Atoi(n)
+		if err != nil {
+			panic("id is not a number")
+		}
+		var user User
+		db.First(&user, id)
+		db.Delete(&user)
+		defer db.Close()
+		ctx.Redirect(302, "/users")
 	})
 
 	router.Run()
