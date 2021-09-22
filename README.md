@@ -1,1 +1,1 @@
-# Go-Docker-MySQL-Gin
+# gin-study

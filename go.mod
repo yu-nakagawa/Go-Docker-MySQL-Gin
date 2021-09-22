@@ -1,4 +1,4 @@
-module github.com/yu-nakagawa/Go-Docker-MySQL-Gin
+module github.com/yu-nakagawa/gin-study
 
 go 1.16
 
