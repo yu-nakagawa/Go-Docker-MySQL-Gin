@@ -16,6 +16,12 @@ type User struct {
 	Email string
 }
 
+type Jirou struct {
+	gorm.Model
+	Name  string
+	Email string
+}
+
 func main() {
 	db := sqlConnect()
 	db.AutoMigrate(&User{})
